@@ -4,7 +4,7 @@ import SignUp from './SignUp';
 import Home from './Home';
 import Settings from './Settings';
 
-export default function SignInScreen() {
+export default function DefaultPage() {
   const [screen, setScreen] = useState<'signin' | 'signup' | 'home' | 'settings'>('signin');
   const [userId, setUserId] = useState<string | null>(null);
 
