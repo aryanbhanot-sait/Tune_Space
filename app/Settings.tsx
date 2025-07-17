@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { getUserById, updateUser, deleteUser } from '../lib/supabase_crud';
-import { supabase } from '../lib/supabase';
+import supabase from '../lib/supabase';
 import { router } from 'expo-router';
 
 export default function SettingsPage() {

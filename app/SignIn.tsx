@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import AuthInput from '../components/AuthInput';
 import SubmitButton from '../components/SubmitButton';
-import { supabase } from '../lib/supabase';
+import supabase from '../lib/supabase';
 import { getUserById } from '../lib/supabase_crud';
 import { router, Link } from 'expo-router';
 

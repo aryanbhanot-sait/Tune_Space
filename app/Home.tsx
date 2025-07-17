@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import { supabase } from '../lib/supabase';
+import supabase from '../lib/supabase';
 import { getUserById } from '../lib/supabase_crud';
 import { router, Link } from 'expo-router';
 
