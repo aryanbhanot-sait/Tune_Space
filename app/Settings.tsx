@@ -2,51 +2,55 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { getUserById, updateUser, deleteUser } from '../lib/supabase_crud';
 import { supabase } from '../lib/supabase';
+import { router } from 'expo-router';
 
-interface Props {
-  userId: string | null;
-  onBack: () => void;
-  onSignOut: () => void;
-}
-
-export default function Settings({ userId, onBack, onSignOut }: Props) {
+export default function SettingsPage() {
+  const [userId, setUserId] = useState<string | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [msg, setMsg] = useState('');
 
   useEffect(() => {
-    if (!userId) return;
-    getUserById(userId).then(user => {
-      if (user) {
-        setFirstName(user.first_name);
-        setLastName(user.last_name);
-        setEmail(user.email);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session?.user?.id) {
+        router.replace('/');
+        return;
       }
+      setUserId(session.user.id);
+      getUserById(session.user.id).then(user => {
+        if (user) {
+          setFirstName(user.first_name);
+          setLastName(user.last_name);
+          setEmail(user.email);
+        }
+      });
     });
-  }, [userId]);
+  }, []);
 
   const handleUpdate = async () => {
     setMsg('');
     try {
-      await updateUser(userId as string, { first_name: firstName, last_name: lastName, email });
+      if (!userId) return;
+      await updateUser(userId, { first_name: firstName, last_name: lastName, email });
       setMsg('Account info updated!');
-    } catch (err: any) {
+    } catch {
       setMsg('Update failed.');
     }
   };
 
   const handleDelete = async () => {
     setMsg('');
+    if (!userId) return;
     Alert.alert('Are you sure?', 'This will delete your account forever!', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteUser(userId as string);
+          await deleteUser(userId);
           await supabase.auth.signOut();
-          onSignOut();
+          router.replace('/');
         }
       }
     ]);
@@ -60,7 +64,7 @@ export default function Settings({ userId, onBack, onSignOut }: Props) {
       <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" autoCapitalize='none' />
       <Button title="Update Info" color="#1DB954" onPress={handleUpdate} />
       <Button title="Delete Account" color="#D32F2F" onPress={handleDelete} />
-      <Button title="Back" onPress={onBack} />
+      <Button title="Back" onPress={() => router.replace('/home')} />
       {msg ? <Text style={styles.msg}>{msg}</Text> : null}
     </View>
   );

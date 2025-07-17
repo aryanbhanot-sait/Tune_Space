@@ -1,16 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import AuthInput from '../components/AuthInput';
 import SubmitButton from '../components/SubmitButton';
 import { supabase } from '../lib/supabase';
 import { getUserById } from '../lib/supabase_crud';
+import { router, Link } from 'expo-router';
 
-interface Props {
-  onSignUp: () => void;
-  onSignedIn: (userId: string) => void;
-}
-
-export default function SignIn({ onSignUp, onSignedIn }: Props) {
+export default function SignInPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -24,7 +20,7 @@ export default function SignIn({ onSignUp, onSignedIn }: Props) {
     }
     try {
       await getUserById(data.user.id);
-      onSignedIn(data.user.id);
+      router.replace('/home');
     } catch {
       setErrorMsg('User does not exist in the database.');
     }
@@ -47,9 +43,9 @@ export default function SignIn({ onSignUp, onSignedIn }: Props) {
         onChangeText={setPassword}
       />
       <SubmitButton title="Sign In" onPress={handleSignIn} />
-      <TouchableOpacity onPress={onSignUp}>
+      <Link href="/signup">
         <Text style={styles.link}>Don't have an account? Sign Up</Text>
-      </TouchableOpacity>
+      </Link>
     </View>
   );
 }

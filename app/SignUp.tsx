@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text } from 'react-native';
 import AuthInput from '../components/AuthInput';
 import SubmitButton from '../components/SubmitButton';
 import { supabase } from '../lib/supabase';
 import { createUser } from '../lib/supabase_crud';
+import { router, Link } from 'expo-router';
 
-interface Props {
-  onSignIn: () => void;
-}
-
-export default function SignUp({ onSignIn }: Props) {
+export default function SignUpPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -27,12 +24,18 @@ export default function SignUp({ onSignIn }: Props) {
       return;
     }
     try {
-      await createUser({ uuid: data.user.id, first_name: firstName, last_name: lastName, email });
-      onSignIn();
+      await createUser({
+        uuid: data.user.id,
+        first_name: firstName,
+        last_name: lastName,
+        email,
+      });
+      setLoading(false);
+      router.replace('/');
     } catch (err: any) {
       setErrorMsg('Error saving user details.');
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -44,12 +47,14 @@ export default function SignUp({ onSignIn }: Props) {
       <AuthInput placeholder="Email" autoCapitalize="none" value={email} onChangeText={setEmail} />
       <AuthInput placeholder="Password" secureTextEntry value={password} onChangeText={setPassword} />
       <SubmitButton title={loading ? "Signing Up..." : "Sign Up"} onPress={handleSignUp} disabled={loading} />
-      <TouchableOpacity onPress={onSignIn}>
+      <Link href="/">
         <Text style={styles.link}>Already have an account? Sign In</Text>
-      </TouchableOpacity>
+      </Link>
     </View>
   );
 }
+
+import { StyleSheet } from 'react-native';
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#121212", alignItems: "center", justifyContent: "center", padding: 20 },
