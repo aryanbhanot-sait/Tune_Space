@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
 import { getUserById } from '../lib/supabase_crud';
+import { router, Link } from 'expo-router';
+
 
 interface Props {
   userId: string | null;
