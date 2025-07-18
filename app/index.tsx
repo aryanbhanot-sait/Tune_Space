@@ -1,59 +1,83 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { signIn, signUp, getSession } from "../lib/supabase_auth";
+import { createUser } from "../lib/supabase_crud";
 import { useRouter } from "expo-router";
 import AnimatedTitle from "../components/animated_title";
 
 const SupabaseAuth = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
     const [isSignIn, setIsSignIn] = useState(true);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [session, setSession] = useState<any>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     const router = useRouter();
 
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const session = await getSession();
-                if (session) {
-                    setSession(session);
-                    router.push("/");
+                const currentSession = await getSession();
+                if (currentSession) {
+                    setSession(currentSession);
+                    router.push("/Home");
                 }
             } catch (err) {
                 console.error("Error checking session:", err);
             }
         };
-
         if (!session) {
             checkSession();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session]);
 
     const handleAuth = async () => {
-        if (!email || !password) {
-            setError("Please enter both email and password");
+        // Validation
+        if (
+            !email ||
+            !password ||
+            (!isSignIn && (!firstName.trim() || !lastName.trim()))
+        ) {
+            setError("Please fill in all required fields.");
             return;
         }
-
         setLoading(true);
         setError(null);
-
         try {
             if (isSignIn) {
                 await signIn(email, password);
-                setIsAuthenticated(true);
-                router.push("/home");
+                router.push("/Home");
             } else {
-                await signUp(email, password);
-                setIsAuthenticated(true);
-                router.push("/");
+                // Sign Up (auth)
+                const data = await signUp(email, password);
+
+                // Support both v1 and v2 of supabase client
+                const user = data.user || (data.session && data.session.user) || data?.user || null;
+
+                if (!user || !user.id) throw new Error("Sign up did not return a user object.");
+
+                // Store user details in your custom table
+                await createUser({
+                    uuid: user.id,
+                    first_name: firstName.trim(),
+                    last_name: lastName.trim(),
+                    email: email,
+                });
+
+                // Reset sign up fields
+                setFirstName("");
+                setLastName("");
+                setEmail("");
+                setPassword("");
+
+                router.push("/Home");
             }
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Authentication failed");
+        } catch (err: any) {
+            setError(err.message || "Authentication failed");
         } finally {
             setLoading(false);
         }
@@ -61,11 +85,32 @@ const SupabaseAuth = () => {
 
     return (
         <View style={styles.container}>
-
             <AnimatedTitle>Tune Space</AnimatedTitle>
             <AnimatedTitle>{isSignIn ? "Sign In" : "Sign Up"}</AnimatedTitle>
 
             {error && <Text style={styles.errorText}>{error}</Text>}
+
+            {/* Only show first/last name in Sign Up mode */}
+            {!isSignIn && (
+                <>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="First Name"
+                        placeholderTextColor="#6a6a6a"
+                        value={firstName}
+                        onChangeText={setFirstName}
+                        autoCapitalize="words"
+                    />
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Last Name"
+                        placeholderTextColor="#6a6a6a"
+                        value={lastName}
+                        onChangeText={setLastName}
+                        autoCapitalize="words"
+                    />
+                </>
+            )}
 
             <TextInput
                 style={styles.input}
@@ -76,7 +121,6 @@ const SupabaseAuth = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
             />
-
             <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -101,7 +145,13 @@ const SupabaseAuth = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-                onPress={() => setIsSignIn(!isSignIn)}
+                onPress={() => {
+                    setIsSignIn(!isSignIn);
+                    setError(null);
+                    // Clear name fields when switching modes
+                    setFirstName("");
+                    setLastName("");
+                }}
                 style={styles.switchModeButton}
             >
                 <Text style={styles.switchModeText}>
@@ -120,14 +170,6 @@ const styles = StyleSheet.create({
         padding: 24,
         justifyContent: "center",
         backgroundColor: "#121212",
-    },
-    title: {
-        fontSize: 32,
-        fontWeight: "bold",
-        color: "#fff",
-        marginBottom: 32,
-        textAlign: "center",
-        letterSpacing: 1,
     },
     input: {
         height: 50,
@@ -174,6 +216,5 @@ const styles = StyleSheet.create({
         fontWeight: "500",
     },
 });
-
 
 export default SupabaseAuth;
