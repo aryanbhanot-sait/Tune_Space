@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextInput, StyleSheet, TextInputProps } from 'react-native';
 
+
 export default function AuthInput(props: TextInputProps) {
   return (
     <TextInput

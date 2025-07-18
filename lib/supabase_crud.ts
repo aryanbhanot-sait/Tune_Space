@@ -1,6 +1,6 @@
-import supabase from './supabase';
+import { supabase } from './supabase';
 
-export type UserDetails = {
+export interface UserDetails {
     uuid: string;
     first_name: string;
     last_name: string;
@@ -13,9 +13,10 @@ export async function getUsers() {
         .select('*');
 
     if (error) {
+        console.error("Error fetching users:", error);
         throw error;
     }
-    return data as UserDetails[];
+    return data;
 }
 
 export async function getUserById(uuid: string) {
@@ -26,9 +27,10 @@ export async function getUserById(uuid: string) {
         .single();
 
     if (error) {
+        console.error(`Error fetching user with ID ${uuid}:`, error);
         throw error;
     }
-    return data as UserDetails;
+    return data;
 }
 
 export async function createUser(user: UserDetails) {
@@ -36,7 +38,8 @@ export async function createUser(user: UserDetails) {
         .from('user_details')
         .insert([user]);
 
-    if (error) {
+    if (error) {    
+        console.error("Error creating user:", error);
         throw error;
     }
     return data;
@@ -49,6 +52,7 @@ export async function updateUser(uuid: string, updates: { first_name: string; la
         .eq('uuid', uuid);
 
     if (error) {
+        console.error(`Error updating item with ID ${uuid}:`, error);
         throw error;
     }
     return data;
@@ -61,6 +65,7 @@ export async function deleteUser(uuid: string) {
         .eq('uuid', uuid);
 
     if (error) {
+        console.error(`Error deleting item with ID ${uuid}:`, error);
         throw error;
     }
     return data;
