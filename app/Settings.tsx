@@ -39,6 +39,11 @@ export default function SettingsPage() {
     }
   };
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.replace('/');
+  };
+
   const handleDelete = async () => {
     setMsg('');
     if (!userId) return;
@@ -66,6 +71,7 @@ export default function SettingsPage() {
       <Button title="Delete Account" color="#D32F2F" onPress={handleDelete} />
       <Button title="Back" onPress={() => router.replace('/home')} />
       {msg ? <Text style={styles.msg}>{msg}</Text> : null}
+      <Button title="Logout" color="#1DB954" onPress={handleLogout} />
     </View>
   );
 }

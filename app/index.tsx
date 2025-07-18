@@ -23,7 +23,7 @@ const SupabaseAuth = () => {
                 const currentSession = await getSession();
                 if (currentSession) {
                     setSession(currentSession);
-                    router.push("/Home");
+                    router.push("/home");
                 }
             } catch (err) {
                 console.error("Error checking session:", err);
@@ -32,11 +32,9 @@ const SupabaseAuth = () => {
         if (!session) {
             checkSession();
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [session]);
 
     const handleAuth = async () => {
-        // Validation
         if (
             !email ||
             !password ||
@@ -50,17 +48,14 @@ const SupabaseAuth = () => {
         try {
             if (isSignIn) {
                 await signIn(email, password);
-                router.push("/Home");
+                router.push("/home");
             } else {
-                // Sign Up (auth)
                 const data = await signUp(email, password);
 
-                // Support both v1 and v2 of supabase client
                 const user = data.user || (data.session && data.session.user) || data?.user || null;
 
                 if (!user || !user.id) throw new Error("Sign up did not return a user object.");
 
-                // Store user details in your custom table
                 await createUser({
                     uuid: user.id,
                     first_name: firstName.trim(),
@@ -68,13 +63,12 @@ const SupabaseAuth = () => {
                     email: email,
                 });
 
-                // Reset sign up fields
                 setFirstName("");
                 setLastName("");
                 setEmail("");
                 setPassword("");
 
-                router.push("/Home");
+                router.push("/home");
             }
         } catch (err: any) {
             setError(err.message || "Authentication failed");
@@ -90,7 +84,6 @@ const SupabaseAuth = () => {
 
             {error && <Text style={styles.errorText}>{error}</Text>}
 
-            {/* Only show first/last name in Sign Up mode */}
             {!isSignIn && (
                 <>
                     <TextInput
@@ -148,7 +141,6 @@ const SupabaseAuth = () => {
                 onPress={() => {
                     setIsSignIn(!isSignIn);
                     setError(null);
-                    // Clear name fields when switching modes
                     setFirstName("");
                     setLastName("");
                 }}

@@ -21,10 +21,7 @@ export default function HomePage() {
     return () => { isMounted = false; };
   }, []);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.replace('/');
-  };
+  
 
   return (
     <View style={styles.container}>
@@ -32,7 +29,7 @@ export default function HomePage() {
       <Link href="/settings">
         <Text style={styles.settingsText}>Settings ⚙️</Text>
       </Link>
-      <Button title="Logout" color="#1DB954" onPress={handleLogout} />
+      
     </View>
   );
 }
