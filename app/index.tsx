@@ -46,7 +46,7 @@ const SupabaseAuth = () => {
             if (isSignIn) {
                 await signIn(email, password);
                 setIsAuthenticated(true);
-                router.push("/");
+                router.push("/home");
             } else {
                 await signUp(email, password);
                 setIsAuthenticated(true);
