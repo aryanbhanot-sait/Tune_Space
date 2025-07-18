@@ -9,7 +9,7 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.50.2",
+    "@supabase/supabase-js": "^2.52.0",
     "dotenv": "^17.2.0",
     "expo": "~53.0.9",
     "expo-router": "^5.0.7",
