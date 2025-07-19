@@ -66,7 +66,6 @@ export default function SettingsPage() {
       <Text style={styles.title}>Account Settings</Text>
       <TextInput style={styles.input} value={firstName} onChangeText={setFirstName} placeholder="First Name" />
       <TextInput style={styles.input} value={lastName} onChangeText={setLastName} placeholder="Last Name" />
-      <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" autoCapitalize='none' />
       <Button title="Update Info" color="#1DB954" onPress={handleUpdate} />
       <Button title="Delete Account" color="#D32F2F" onPress={handleDelete} />
       <Button title="Back" onPress={() => router.replace('/home')} />

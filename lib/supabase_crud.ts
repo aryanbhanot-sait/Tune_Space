@@ -64,11 +64,9 @@ export async function deleteUser(uuid: string) {
         .delete()
         .eq('uuid', uuid);
 
-    const { error: authError } = await supabase.auth.admin.deleteUser(uuid);
-
-    if (error || authError) {
-        console.error(`Error deleting user with ID ${uuid}:`, error || authError);
-        throw error || authError;
+    if (error) {
+        console.error(`Error deleting item with ID ${uuid}:`, error);
+        throw error;
     }
     return data;
 }
