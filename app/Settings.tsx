@@ -113,6 +113,13 @@ export default function SettingsPage() {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.infoContainer}>
+        <Text style={styles.infoText}>
+          <Text style={styles.bold}>Tune Space</Text> — Crafted with <Text style={styles.heart}>♥</Text> by Aryan{"\n"}
+          <Text style={styles.meta}>© 2025 Aryan. All rights reserved.</Text>
+        </Text>
+      </View>
+
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -209,20 +216,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 10,
     marginBottom: 8,
-    width: "100%"
+    width: 275
   },
   updateBtnTxt: { color: "#fff", fontWeight: "700", fontSize: 17 },
   deleteBtn: {
     backgroundColor: "#D32F2F",
     borderRadius: 10, paddingVertical: 12, paddingHorizontal: 26,
-    alignItems: "center", marginBottom: 10, width: "100%",
+    alignItems: "center", marginBottom: 10, width: 275,
     flexDirection: "row", justifyContent: "center"
   },
   deleteBtnTxt: { color: "#fff", fontWeight: "700", fontSize: 16 },
   logoutBtn: {
     backgroundColor: "#283043",
     borderRadius: 10, paddingVertical: 12, paddingHorizontal: 26,
-    alignItems: "center", marginTop: 10, width: "100%",
+    alignItems: "center", marginTop: 10, width: 275,
     flexDirection: "row", justifyContent: "center"
   },
   logoutBtnTxt: { color: "#fff", fontWeight: "700", fontSize: 16 },
@@ -269,7 +276,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowOffset: { width: 1, height: 2 },
     shadowRadius: 8,
-    
+
   },
   fabLabel: {
     color: "#fff",
@@ -306,4 +313,32 @@ const styles = StyleSheet.create({
     marginBottom: 4,
     textAlign: "center",
   },
+  infoContainer: {
+  paddingVertical: 18,
+  alignItems: "center",
+  justifyContent: "center",
+},
+infoText: {
+  color: "#b3b3b3",
+  fontSize: 15,
+  textAlign: "center",
+  letterSpacing: 0.2,
+  lineHeight: 22,
+},
+bold: {
+  color: "#1DB954",
+  fontWeight: "bold",
+  fontSize: 16,
+  letterSpacing: 0.3,
+},
+heart: {
+  color: "#de2c66",
+  fontWeight: "bold",
+},
+meta: {
+  color: "#888",
+  fontSize: 13,
+  fontStyle: "italic",
+},
+
 });
