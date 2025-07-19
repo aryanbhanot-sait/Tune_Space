@@ -36,9 +36,9 @@ export default function HomePage() {
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabSelected}
+            activeOpacity={1}
           >
             <Ionicons name="home-outline" size={30} color="#fff" />
-
           </TouchableOpacity>
           <Text style={styles.fabLabelSelected}>Home</Text>
         </View>
