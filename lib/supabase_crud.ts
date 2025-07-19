@@ -63,11 +63,11 @@ export async function deleteUser(uuid: string) {
         .from('user_details')
         .delete()
         .eq('uuid', uuid);
-    
+
     const { error: authError } = await supabase.auth.admin.deleteUser(uuid);
 
     if (error || authError) {
-        console.error(`Error deleting item with ID ${uuid}:`, error || authError);
+        console.error(`Error deleting user with ID ${uuid}:`, error || authError);
         throw error || authError;
     }
     return data;
