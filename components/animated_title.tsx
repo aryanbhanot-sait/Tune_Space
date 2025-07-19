@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Text } from "react-native";
+import { Animated, Text, TextProps } from "react-native";
 
 const COLOR_LIST = [
   "#FF5F6D", // Vivid Hot Pink
@@ -36,9 +36,14 @@ const COLOR_LIST = [
 
 
 // 7 colors, so 6 intervals, 1 sec for each, 6 sec per loop
+
+type AnimatedTitleProps = TextProps & {
+  children: string;
+};
+
 const INTERVAL = 1 / (COLOR_LIST.length - 1);
 
-export default function AnimatedTitle({ children }: { children: string }) {
+export default function AnimatedTitle({ children, ...props }: AnimatedTitleProps) {
   const animation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
@@ -68,7 +73,9 @@ export default function AnimatedTitle({ children }: { children: string }) {
         textAlign: "center",
         letterSpacing: 1,
       }}
+      {...props}
     >
+      
       {children}
     </Animated.Text>
   );
