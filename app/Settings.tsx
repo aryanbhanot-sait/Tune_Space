@@ -115,8 +115,8 @@ export default function SettingsPage() {
 
       <View style={styles.infoContainer}>
         <Text style={styles.infoText}>
-          <Text style={styles.bold}>Tune Space</Text> — Crafted with <Text style={styles.heart}>♥</Text> by Aryan{"\n"}
-          <Text style={styles.meta}>© 2025 Aryan. All rights reserved.</Text>
+          <Text style={styles.bold}>Tune Space</Text> — Crafted with <Text style={styles.heart}>♥</Text> by Group1{"\n"}
+          <Text style={styles.meta}>© 2025 Group1. All rights reserved.</Text>
         </Text>
       </View>
 
