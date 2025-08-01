@@ -49,7 +49,7 @@ export default function HomePage() {
   }, [userId]);
 
   const goToPlaylist = (playlistId: string) => {
-    router.push(`/particular_playlist`);
+    router.push(`/playlists/[playlistId]`);
   };
   const goToCreatePlaylist = () => {
     router.push('/playlists');
@@ -86,7 +86,7 @@ export default function HomePage() {
               renderItem={({ item }) => (
                 <TouchableOpacity
                   style={styles.songCard}
-                  onPress={() => goToSong(item.idTrack)} 
+                  onPress={() => goToSong(item.idTrack)}
                 >
                   <Image
                     source={{ uri: item.strTrackThumb || item.strAlbumThumb || undefined }}
