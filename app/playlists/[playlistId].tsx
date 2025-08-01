@@ -24,6 +24,8 @@ export default function PlaylistDetail() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+
+
   // Get logged-in user ID from supabase session
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -46,12 +48,9 @@ export default function PlaylistDetail() {
     }
   }, [params.playlistId, router]);
 
-
-
   // Fetch playlist when userId and playlistId are ready
   useEffect(() => {
     if (!userId || !playlistId) return;
-
     async function loadPlaylist() {
       setLoading(true);
       try {
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   centered: {
-    flex:1,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#121212',
