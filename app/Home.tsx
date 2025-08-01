@@ -98,45 +98,45 @@ export default function HomePage() {
         <AnimatedTitle>{`Hi, ${userFullName}`}</AnimatedTitle>
       </View>
 
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by song, artist, or album…"
+        placeholderTextColor="#888"
+        value={searchQuery}
+        onChangeText={(text) => {
+          setSearchQuery(text);
+          searchMusic(text);
+        }}
+        autoCorrect={false}
+        autoCapitalize="none"
+      />
+
+      {/* (Optional) Show Results Dropdown */}
+      {searchResults.length > 0 && (
+        <FlatList
+          data={searchResults}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => router.push(`/songs/${item.id}`)}
+              style={styles.resultItemTouchable}
+            >
+              <Text style={styles.resultItem}>
+                {item.title} - {item.artist} {item.album ? `(${item.album})` : ''}
+              </Text>
+            </TouchableOpacity>
+          )}
+          style={styles.resultsList}
+          nestedScrollEnabled
+          keyboardShouldPersistTaps="handled"
+        />
+      )}
+
       <ScrollView
         style={{ width: "100%", flex: 1 }}
         contentContainerStyle={{ paddingBottom: 110 }}
         showsVerticalScrollIndicator={false}
       >
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search by song, artist, or album…"
-          placeholderTextColor="#888"
-          value={searchQuery}
-          onChangeText={(text) => {
-            setSearchQuery(text);
-            searchMusic(text);
-          }}
-          autoCorrect={false}
-          autoCapitalize="none"
-        />
-
-        {/* (Optional) Show Results Dropdown */}
-        {searchResults.length > 0 && (
-          <FlatList
-            data={searchResults}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                onPress={() => router.push(`/songs/${item.id}`)}
-                style={styles.resultItemTouchable}
-              >
-                <Text style={styles.resultItem}>
-                  {item.title} - {item.artist} {item.album ? `(${item.album})` : ''}
-                </Text>
-              </TouchableOpacity>
-            )}
-            style={styles.resultsList}
-            nestedScrollEnabled
-          />
-
-
-        )}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             <Ionicons name="flame-outline" size={22} color="#FFD700" /> Trending Songs
