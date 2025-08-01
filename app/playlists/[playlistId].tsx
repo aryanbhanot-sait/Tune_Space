@@ -10,32 +10,45 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { supabase } from '../../lib/supabase';    // your configured supabase client
-import { fetchPlaylistById, updatePlaylist, Playlist } from '../../lib/supabase_playlists'; // your fetching/updating logic
+import { supabase } from '../../lib/supabase';    // Adjust your supabase client import path
+import { fetchPlaylistById, updatePlaylist, Playlist } from '../../lib/supabase_playlists'; // Your fetch/update logic
 
 export default function PlaylistDetail() {
   const router = useRouter();
   const params = useLocalSearchParams();
-  const playlistId = typeof params.playlistId === 'string' ? params.playlistId : null;
 
-  const [userId, setUserId] = React.useState<string | null>(null);
+  // Correctly obtain playlistId from route params
+  const [playlistId, setPlaylistId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Get logged-in user ID
+  // Get logged-in user ID from supabase session
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user?.id) {
         setUserId(session.user.id);
       } else {
-        // Not logged in, redirect or handle as needed
+        // Handle unauthenticated user
         router.replace('/login');
       }
     });
-  }, []);
+  }, [router]);
 
-  // Fetch playlist data by userId and playlistId
+  // Extract playlistId from params
+  useEffect(() => {
+    if (params.playlistId) {
+      setPlaylistId(params.playlistId as string);
+    } else {
+      Alert.alert('Invalid playlist ID');
+      router.replace('/playlists');
+    }
+  }, [params.playlistId, router]);
+
+
+
+  // Fetch playlist when userId and playlistId are ready
   useEffect(() => {
     if (!userId || !playlistId) return;
 
@@ -45,7 +58,7 @@ export default function PlaylistDetail() {
         const p = await fetchPlaylistById(userId as string, playlistId as string);
         if (!p) {
           Alert.alert('Playlist not found or access denied');
-          router.replace('/playlists'); // fallback
+          router.replace('/playlists');
           return;
         }
         setPlaylist(p);
@@ -58,9 +71,9 @@ export default function PlaylistDetail() {
     }
 
     loadPlaylist();
-  }, [userId, playlistId]);
+  }, [userId, playlistId, router]);
 
-  // Confirm and remove song from playlist by index
+  // Remove song from playlist
   const confirmRemoveSong = (index: number) => {
     Alert.alert(
       'Remove Song',
@@ -92,11 +105,10 @@ export default function PlaylistDetail() {
     }
   };
 
-  // Navigate to add songs screen (implement your add songs page)
+  // Navigate to add songs page (implement that page as needed)
   const goToAddSongs = () => {
-    router.push({
-      pathname: `/playlists/${playlistId}/add-songs`, // adjust path as needed
-    });
+    if (!playlistId) return;
+    router.push(`/playlists/${playlistId}/add-songs`);
   };
 
   if (loading) {
