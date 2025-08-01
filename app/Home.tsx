@@ -17,6 +17,7 @@ export default function HomePage() {
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(true);
 
+
   useEffect(() => {
     let isMounted = true;
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -54,6 +55,10 @@ export default function HomePage() {
     router.push('/playlists');
   };
 
+  const goToSong = (songId: string) => {
+    router.push(`/songs/${songId}`);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.top}>
@@ -79,7 +84,10 @@ export default function HomePage() {
               keyExtractor={item => item.idTrack}
               contentContainerStyle={{ gap: 18, paddingVertical: 5, paddingLeft: 2 }}
               renderItem={({ item }) => (
-                <TouchableOpacity style={styles.songCard}>
+                <TouchableOpacity
+                  style={styles.songCard}
+                  onPress={() => goToSong(item.idTrack)} 
+                >
                   <Image
                     source={{ uri: item.strTrackThumb || item.strAlbumThumb || undefined }}
                     style={styles.songArt}
