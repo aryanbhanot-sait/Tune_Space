@@ -132,7 +132,7 @@ export default function PlaylistDetail() {
 
   return (
     <View style={styles.container}>
-      <ScrollView>
+      <ScrollView contentContainerStyle={{ paddingTop: 30, paddingHorizontal: 20 }}>
         {/* Header */}
         <View style={styles.header}>
           <AnimatedTitle>{playlist.name}</AnimatedTitle>
@@ -160,7 +160,7 @@ export default function PlaylistDetail() {
 
         {/* Add Songs Button */}
         <TouchableOpacity style={styles.addSongsBtn} onPress={goToAddSongs} disabled={saving}>
-          <Ionicons name="add-circle" size={28} color="#1DB954" />
+          <Ionicons name="add-circle" size={28} color="#ffffffff" />
           <Text style={styles.addSongsText}>Add More Songs</Text>
         </TouchableOpacity>
       </ScrollView>
