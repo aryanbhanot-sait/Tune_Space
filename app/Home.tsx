@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Image, FlatList, ActivityIndicator, TextInput } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { getUserById } from '../lib/supabase_crud';
 import { router } from 'expo-router';
@@ -16,6 +16,10 @@ export default function HomePage() {
   const [playlists, setPlaylists] = useState<any[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(true);
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [allSongs, setAllSongs] = useState<any[]>([]);
 
 
   useEffect(() => {
@@ -41,6 +45,20 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
+    if (trending.length > 0) {
+      // Map AudioDBSong to your song object with expected keys for search
+      const mappedSongs = trending.map(song => ({
+        id: song.idTrack,
+        title: song.strTrack || '',
+        artist: song.strArtist || '',
+        album: song.strAlbum || '',
+        // optionally add more fields if needed
+      }));
+      setAllSongs(mappedSongs);
+    }
+  }, [trending]);
+
+  useEffect(() => {
     if (!userId) return;
     fetchUserPlaylists(userId).then((pls: any[]) => {
       setPlaylists(pls);
@@ -59,6 +77,21 @@ export default function HomePage() {
     router.push(`/songs/${songId}`);
   };
 
+  const searchMusic = (query: string) => {
+    if (!query || query.trim() === '') {
+      setSearchResults([]);
+      return;
+    }
+    const lowerq = query.toLowerCase();
+    const filtered = allSongs.filter(
+      (song) =>
+        song.title.toLowerCase().includes(lowerq) ||
+        song.artist.toLowerCase().includes(lowerq) ||
+        song.album?.toLowerCase().includes(lowerq)
+    );
+    setSearchResults(filtered);
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.top}>
@@ -70,6 +103,40 @@ export default function HomePage() {
         contentContainerStyle={{ paddingBottom: 110 }}
         showsVerticalScrollIndicator={false}
       >
+        <TextInput
+          style={styles.searchInput}
+          placeholder="Search by song, artist, or album…"
+          placeholderTextColor="#888"
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            searchMusic(text);
+          }}
+          autoCorrect={false}
+          autoCapitalize="none"
+        />
+
+        {/* (Optional) Show Results Dropdown */}
+        {searchResults.length > 0 && (
+          <FlatList
+            data={searchResults}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                onPress={() => router.push(`/songs/${item.id}`)}
+                style={styles.resultItemTouchable}
+              >
+                <Text style={styles.resultItem}>
+                  {item.title} - {item.artist} {item.album ? `(${item.album})` : ''}
+                </Text>
+              </TouchableOpacity>
+            )}
+            style={styles.resultsList}
+            nestedScrollEnabled
+          />
+
+
+        )}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
             <Ionicons name="flame-outline" size={22} color="#FFD700" /> Trending Songs
@@ -200,6 +267,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 8,
   },
+  searchInput: {
+    backgroundColor: '#191c24',
+    color: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    marginHorizontal: 16,
+    marginBottom: 10,
+    borderColor: '#444',
+    borderWidth: 1,
+  },
+  sectionHeading: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#fff',
+    paddingHorizontal: 16,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  resultItem: {
+    padding: 10,
+    color: '#fff'
+  },
+  resultsList: {
+    maxHeight: 180,
+    backgroundColor: '#23272f',
+    marginHorizontal: 16,
+    borderRadius: 10
+  },
   top: {
     width: "100%",
     paddingTop: 30,
@@ -327,6 +422,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginBottom: 1,
     maxWidth: 94,
+  },
+  resultItemTouchable: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderBottomColor: '#333',
+    borderBottomWidth: 1,
   },
   footerFabContainer: {
     position: "absolute",
