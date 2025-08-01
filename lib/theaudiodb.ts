@@ -1,4 +1,3 @@
-
 const API_BASE = "https://api.deezer.com";
 
 export interface AudioDBSong {
@@ -55,6 +54,31 @@ export async function searchTrack(artist: string, track: string): Promise<AudioD
   }
 
   const trackData = data.data[0];
+  return {
+    idTrack: trackData.id.toString(),
+    strTrack: trackData.title,
+    strArtist: trackData.artist?.name || "",
+    strAlbum: trackData.album?.title || "",
+    strTrackThumb: trackData.album?.cover_medium || null,
+    strAlbumThumb: trackData.album?.cover_medium || null,
+    intYearReleased: trackData.release_date ? new Date(trackData.release_date).getFullYear().toString() : null,
+    preview: trackData.preview || null,
+  };
+}
+
+export async function fetchSongById(idTrack: string): Promise<AudioDBSong | null> {
+  const url = `${API_BASE}/track/${idTrack}`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch song by id: ${response.status}`);
+  }
+  const trackData = await response.json();
+
+  if (!trackData || !trackData.id) {
+    return null;
+  }
+
   return {
     idTrack: trackData.id.toString(),
     strTrack: trackData.title,
