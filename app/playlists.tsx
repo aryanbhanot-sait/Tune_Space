@@ -158,7 +158,7 @@ export default function PlaylistsScreen() {
           Alert.alert("Please log in to view playlists.");
           return;
         }
-       router.push(`/playlists/[playlistId]`);
+       router.push(`/playlists/${item.id}`);
       }}
     >
       {item.songs && item.songs.length > 0 && item.songs[0].albumCover ? (
