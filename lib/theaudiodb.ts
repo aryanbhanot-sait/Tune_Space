@@ -1,4 +1,5 @@
-const API_BASE = "https://www.theaudiodb.com/api/v1/json/2";
+
+const API_BASE = "https://api.deezer.com";
 
 export interface AudioDBSong {
   idTrack: string;
@@ -8,25 +9,83 @@ export interface AudioDBSong {
   strTrackThumb: string | null;
   strAlbumThumb: string | null;
   intYearReleased: string | null;
+  preview: string | null;
 }
 
-export async function fetchTrendingSongs(country: string = "us", count: number = 12): Promise<AudioDBSong[]> {
-  const url = `${API_BASE}/trending.php?country=${country}&type=itunes&format=singles`;
+
+export async function fetchTrendingSongs(count: number = 12): Promise<AudioDBSong[]> {
+
+  const url = `${API_BASE}/chart/0/tracks?limit=${count}`;
+
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch trending songs: ${response.status}`);
+  }
   const data = await response.json();
-  return Array.isArray(data.trending) ? data.trending.slice(0, count) : [];
+
+  if (!Array.isArray(data.data)) {
+    return [];
+  }
+
+  return data.data.map((track: any) => ({
+    idTrack: track.id.toString(),
+    strTrack: track.title,
+    strArtist: track.artist?.name || "",
+    strAlbum: track.album?.title || "",
+    strTrackThumb: track.album?.cover_medium || null,
+    strAlbumThumb: track.album?.cover_medium || null,
+    intYearReleased: track.release_date ? new Date(track.release_date).getFullYear().toString() : null,
+    preview: track.preview || null,
+  }));
 }
+
 
 export async function searchTrack(artist: string, track: string): Promise<AudioDBSong | null> {
-  const url = `${API_BASE}/searchtrack.php?s=${encodeURIComponent(artist)}&t=${encodeURIComponent(track)}`;
+  const query = `artist:"${artist}" track:"${track}"`;
+  const url = `${API_BASE}/search?q=${encodeURIComponent(query)}&limit=1`;
+
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to search track: ${response.status}`);
+  }
   const data = await response.json();
-  return Array.isArray(data.track) && data.track.length > 0 ? data.track[0] : null;
+
+  if (!Array.isArray(data.data) || data.data.length === 0) {
+    return null;
+  }
+
+  const trackData = data.data[0];
+  return {
+    idTrack: trackData.id.toString(),
+    strTrack: trackData.title,
+    strArtist: trackData.artist?.name || "",
+    strAlbum: trackData.album?.title || "",
+    strTrackThumb: trackData.album?.cover_medium || null,
+    strAlbumThumb: trackData.album?.cover_medium || null,
+    intYearReleased: trackData.release_date ? new Date(trackData.release_date).getFullYear().toString() : null,
+    preview: trackData.preview || null,
+  };
 }
 
-export async function fetchTrendingAlbums(country: string = "us", count: number = 12) {
-  const url = `${API_BASE}/trending.php?country=${country}&type=itunes&format=albums`;
+
+export async function fetchTrendingAlbums(count: number = 12) {
+  const url = `${API_BASE}/chart/0/albums?limit=${count}`;
+
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch trending albums: ${response.status}`);
+  }
   const data = await response.json();
-  return Array.isArray(data.trending) ? data.trending.slice(0, count) : [];
+
+  if (!Array.isArray(data.data)) {
+    return [];
+  }
+
+  return data.data.map((album: any) => ({
+    idAlbum: album.id.toString(),
+    strAlbum: album.title,
+    strArtist: album.artist?.name || "",
+    strAlbumThumb: album.cover_medium || null,
+    intYearReleased: album.release_date ? new Date(album.release_date).getFullYear().toString() : null,
+  }));
 }
