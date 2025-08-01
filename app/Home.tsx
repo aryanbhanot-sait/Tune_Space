@@ -52,7 +52,7 @@ export default function HomePage() {
     router.push(`/playlists/${playlistId}`);
   };
   const goToCreatePlaylist = () => {
-    router.push('/playlists/playlist');
+    router.push('/playlists');
   };
 
   return (
