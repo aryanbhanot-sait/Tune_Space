@@ -11,6 +11,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
 import { Audio } from 'expo-av';
 import { AudioDBSong, fetchSongById } from '../../lib/theaudiodb';
+import { isSongLiked } from '../../lib/liked_songs'; 
+
 
 export default function SongPlayer() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -19,6 +21,9 @@ export default function SongPlayer() {
     const [loading, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
     const soundRef = useRef<Audio.Sound | null>(null);
+    const [isLiked, setIsLiked] = useState(false);
+    const [userId, setUserId] = useState<string | null>(null);
+
 
     // Fetch song details by id when id changes
     useEffect(() => {
@@ -93,6 +98,29 @@ export default function SongPlayer() {
             </View>
         );
     }
+
+    
+      useEffect(() => {
+        async function loadSongAndLikeStatus() {
+            if (!id || !userId) return; // Add a check for userId
+            setLoading(true);
+            try {
+                const songData = await fetchSongById(id);
+                setSong(songData);
+    
+                // New: Check if the song is liked by the user
+                const likedStatus = await isSongLiked(userId, id);
+                setIsLiked(likedStatus);
+            } catch (err) {
+                console.error('Failed to fetch song or like status:', err);
+                setSong(null);
+            } finally {
+                setLoading(false);
+            }
+        }
+        loadSongAndLikeStatus();
+        // ... (rest of your useEffect cleanup)
+    }, [id, userId]);
 
     return (
         <View style={styles.container}>
