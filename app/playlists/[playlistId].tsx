@@ -12,6 +12,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { supabase } from '../../lib/supabase';    // Adjust your supabase client import path
 import { fetchPlaylistById, updatePlaylist, Playlist } from '../../lib/supabase_playlists'; // Your fetch/update logic
+import AnimatedTitle from '../../components/animated_title';
 
 export default function PlaylistDetail() {
   const router = useRouter();
@@ -130,44 +131,69 @@ export default function PlaylistDetail() {
   const createdDate = new Date(playlist.created_at).toLocaleDateString();
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>{playlist.name}</Text>
-        {playlist.description ? <Text style={styles.description}>{playlist.description}</Text> : null}
-        <Text style={styles.meta}>
-          Created on {createdDate} · {songs.length} {songs.length === 1 ? 'song' : 'songs'}
-        </Text>
-      </View>
-
-      {/* Songs List */}
-      {songs.length === 0 ? (
-        <Text style={styles.noSongsText}>No songs in this playlist yet.</Text>
-      ) : (
-        <View style={styles.songsContainer}>
-          {songs.map((song, idx) => (
-            <View key={idx} style={styles.songButton}>
-              <Text numberOfLines={1} style={styles.songText}>{song.title || 'Untitled'}</Text>
-              <TouchableOpacity onPress={() => confirmRemoveSong(idx)} style={styles.removeButton} disabled={saving}>
-                <Ionicons name="close-circle" size={24} color="#d9534f" />
-              </TouchableOpacity>
-            </View>
-          ))}
+    <View style={styles.container}>
+      <ScrollView>
+        {/* Header */}
+        <View style={styles.header}>
+          <AnimatedTitle>{playlist.name}</AnimatedTitle>
+          {playlist.description ? <Text style={styles.description}>{playlist.description}</Text> : null}
+          <Text style={styles.meta}>
+            Created on {createdDate} · {songs.length} {songs.length === 1 ? 'song' : 'songs'}
+          </Text>
         </View>
-      )}
 
-      {/* Add Songs Button */}
-      <TouchableOpacity style={styles.addSongsBtn} onPress={goToAddSongs} disabled={saving}>
-        <Ionicons name="add-circle" size={28} color="#1DB954" />
-        <Text style={styles.addSongsText}>Add More Songs</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Songs List */}
+        {songs.length === 0 ? (
+          <Text style={styles.noSongsText}>No songs in this playlist yet.</Text>
+        ) : (
+          <View style={styles.songsContainer}>
+            {songs.map((song, idx) => (
+              <View key={idx} style={styles.songButton}>
+                <Text numberOfLines={1} style={styles.songText}>{song.title || 'Untitled'}</Text>
+                <TouchableOpacity onPress={() => confirmRemoveSong(idx)} style={styles.removeButton} disabled={saving}>
+                  <Ionicons name="close-circle" size={24} color="#d9534f" />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Add Songs Button */}
+        <TouchableOpacity style={styles.addSongsBtn} onPress={goToAddSongs} disabled={saving}>
+          <Ionicons name="add-circle" size={28} color="#1DB954" />
+          <Text style={styles.addSongsText}>Add More Songs</Text>
+        </TouchableOpacity>
+      </ScrollView>
+      {/* Modern Footer Bar with Home and Settings */}
+      <View style={styles.footerBar}>
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/home')}
+          >
+            <Ionicons name="home-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Home</Text>
+        </View>
+
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/settings')}
+          >
+            <Ionicons name="settings-outline" size={36} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Settings</Text>
+        </View>
+
+      </View>
+    </View>
+
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
     backgroundColor: '#121212',
     flexGrow: 1,
   },
@@ -180,6 +206,52 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
+  footerBar: {
+    position: "absolute",
+    bottom: 0,
+    paddingBottom: 22,
+    right: 25,
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 30,
+    backgroundColor: "#191c24", // same or similar to your main bg
+    borderTopWidth: 2, // or 1 for more subtle
+    borderTopColor: "#23272f", // slightly lighter than bg for gentle effect
+    paddingTop: 12,
+    paddingHorizontal: 24,
+    shadowColor: "#000",
+    shadowOpacity: 0.14,
+    shadowOffset: { width: 0, height: -3 },
+    shadowRadius: 14,
+    borderTopLeftRadius: 18,
+    borderTopRightRadius: 18,
+    // If you want it to stretch (optional):
+    left: 0,
+    width: "100%",
+    justifyContent: "center"
+  },
+  fabNormal: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "#232c45",
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 6,
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 1, height: 2 },
+    shadowRadius: 8,
+
+  },
+  fabLabel: {
+    color: "#fff",
+    fontSize: 13,
+    fontWeight: "500",
+    marginTop: 2,
+    marginBottom: 5,
+    textAlign: "center",
+  },
   title: {
     color: '#fff',
     fontSize: 26,
@@ -188,7 +260,6 @@ const styles = StyleSheet.create({
   description: {
     color: '#aaa',
     fontSize: 14,
-    marginTop: 6,
   },
   meta: {
     color: '#666',
