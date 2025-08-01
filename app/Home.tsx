@@ -49,7 +49,7 @@ export default function HomePage() {
   }, [userId]);
 
   const goToPlaylist = (playlistId: string) => {
-    router.push(`/playlists/[playlistId]`);
+    router.push(`/playlists/${playlistId}`);
   };
   const goToCreatePlaylist = () => {
     router.push('/playlists');
