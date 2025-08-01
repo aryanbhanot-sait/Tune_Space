@@ -29,7 +29,6 @@ export default function PlaylistsScreen() {
 
   const [nameInput, setNameInput] = useState("");
   const [descInput, setDescInput] = useState("");
-  const [coverInput, setCoverInput] = useState("");
   const [isPublicInput, setIsPublicInput] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -70,7 +69,6 @@ export default function PlaylistsScreen() {
     setEditingPlaylist(null);
     setNameInput("");
     setDescInput("");
-    setCoverInput("");
     setIsPublicInput(false);
     setModalVisible(true);
   }
@@ -79,14 +77,9 @@ export default function PlaylistsScreen() {
     setEditingPlaylist(playlist);
     setNameInput(playlist.name);
     setDescInput(playlist.description || "");
-    setCoverInput(playlist.cover || "");
     setIsPublicInput(playlist.is_public);
     setModalVisible(true);
   }
-
-  const goToPlaylist = (playlistId: string) => {
-    router.push(`/playlists/${playlistId}`);
-  };
 
   async function savePlaylist() {
     if (!nameInput.trim()) {
@@ -104,13 +97,12 @@ export default function PlaylistsScreen() {
         const success = await updatePlaylist(editingPlaylist.id, {
           name: nameInput,
           description: descInput,
-          cover: coverInput,
           is_public: isPublicInput,
         });
         if (!success) throw new Error("Failed to update playlist");
       } else {
         // Create new playlist
-        const newPlaylist = await createPlaylist(userId, nameInput, descInput, coverInput, isPublicInput);
+        const newPlaylist = await createPlaylist(userId, nameInput, descInput, isPublicInput);
         if (!newPlaylist) throw new Error("Failed to create playlist");
       }
       setModalVisible(false);
