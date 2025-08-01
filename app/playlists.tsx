@@ -84,6 +84,10 @@ export default function PlaylistsScreen() {
     setModalVisible(true);
   }
 
+  const goToPlaylist = (playlistId: string) => {
+    router.push(`/playlists/${playlistId}`);
+  };
+
   async function savePlaylist() {
     if (!nameInput.trim()) {
       Alert.alert("Validation", "Playlist name cannot be empty.");
@@ -153,42 +157,49 @@ export default function PlaylistsScreen() {
   }
 
   function renderPlaylistItem({ item }: { item: Playlist }) {
-    return (
-      <TouchableOpacity
-        style={styles.playlistCard}
-        onPress={() => router.push(`/particular_playlist`)}
-        activeOpacity={0.7}
-      >
-        {item.songs && item.songs.length > 0 && item.songs[0].albumCover ? (
-          <Image source={{ uri: item.songs[0].albumCover }} style={styles.coverImage} />
-        ) : (
-          <View style={styles.noCoverPlaceholder}>
-            <Ionicons name="musical-notes-outline" size={36} color="#888" />
-          </View>
-        )}
-        <Text style={styles.playlistName} numberOfLines={1}>
-          {item.name}
-        </Text>
-        <Text style={styles.playlistDesc} numberOfLines={1}>
-          {item.description || "No description"}
-        </Text>
-        <View style={styles.playlistActions}>
-          <TouchableOpacity
-            onPress={() => openEditModal(item)}
-            style={styles.actionButton}
-          >
-            <Ionicons name="pencil-outline" size={18} color="#1DB954" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() => confirmDelete(item)}
-            style={styles.actionButton}
-          >
-            <Ionicons name="trash-outline" size={18} color="#d9534f" />
-          </TouchableOpacity>
+  return (
+    <TouchableOpacity
+      style={styles.playlistCard}
+      activeOpacity={0.7}
+      onPress={() => {
+        if (!userId) {
+          Alert.alert("Please log in to view playlists.");
+          return;
+        }
+       router.push(`/playlists/[playlistId]`);
+      }}
+    >
+      {item.songs && item.songs.length > 0 && item.songs[0].albumCover ? (
+        <Image source={{ uri: item.songs[0].albumCover }} style={styles.coverImage} />
+      ) : (
+        <View style={styles.noCoverPlaceholder}>
+          <Ionicons name="musical-notes-outline" size={36} color="#888" />
         </View>
-      </TouchableOpacity>
-    );
-  }
+      )}
+      <Text style={styles.playlistName} numberOfLines={1}>
+        {item.name}
+      </Text>
+      <Text style={styles.playlistDesc} numberOfLines={1}>
+        {item.description || "No description"}
+      </Text>
+      <View style={styles.playlistActions}>
+        <TouchableOpacity
+          onPress={() => openEditModal(item)}
+          style={styles.actionButton}
+        >
+          <Ionicons name="pencil-outline" size={18} color="#1DB954" />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => confirmDelete(item)}
+          style={styles.actionButton}
+        >
+          <Ionicons name="trash-outline" size={18} color="#d9534f" />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
 
   if (!userId) {
     return (
@@ -304,7 +315,7 @@ export default function PlaylistsScreen() {
           </ScrollView>
         </View>
       </Modal>
-      
+
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
