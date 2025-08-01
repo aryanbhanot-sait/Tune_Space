@@ -12,6 +12,25 @@ export interface Playlist {
   updated_at: string;
 }
 
+export async function fetchPlaylistById(
+  userId: string,
+  playlistId: string
+): Promise<Playlist | null> {
+  const { data, error } = await supabase
+    .from('playlists')
+    .select('*')
+    .eq('id', playlistId)
+    .eq('user_id', userId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching playlist by id:', error);
+    return null;
+  }
+
+  return data;
+}
+
 export async function fetchUserPlaylists(userId: string): Promise<Playlist[]> {
   const { data, error } = await supabase
     .from('playlists')
