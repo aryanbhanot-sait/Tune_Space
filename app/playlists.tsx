@@ -304,6 +304,7 @@ export default function PlaylistsScreen() {
           </ScrollView>
         </View>
       </Modal>
+      
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
