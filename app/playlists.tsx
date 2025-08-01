@@ -1,5 +1,3 @@
-// screens/playlists.tsx
-
 import React, { useEffect, useState } from "react";
 import {
   View,
@@ -17,25 +15,37 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { fetchUserPlaylists, createPlaylist, updatePlaylist, deletePlaylist, Playlist } from "../lib/supabase_playlists";
+import { supabase } from "../lib/supabase";
 
 export default function PlaylistsScreen() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
+  
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
 
-  // Form state for create/edit
   const [nameInput, setNameInput] = useState("");
   const [descInput, setDescInput] = useState("");
   const [coverInput, setCoverInput] = useState("");
   const [isPublicInput, setIsPublicInput] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Assume you have a user ID stored globally or via context/session; replace with your auth hook
-  // For demo, replace this with actual logged-in user id fetching
-  const userId = "current-user-id-placeholder"; // TODO: replace with actual logged-in user ID 
+  
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchUserId() {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data?.user) {
+        setUserId(null);
+      } else {
+        setUserId(data.user.id);
+      }
+    }
+    fetchUserId();
+  }, []);
 
   async function loadPlaylists() {
     if (!userId) return;
