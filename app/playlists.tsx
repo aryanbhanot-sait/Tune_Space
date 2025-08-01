@@ -156,11 +156,11 @@ export default function PlaylistsScreen() {
     return (
       <TouchableOpacity
         style={styles.playlistCard}
-        onPress={() => router.push(`/playlists/${item.id}`)}
+        onPress={() => router.push(`/particular_playlist`)}
         activeOpacity={0.7}
       >
-        {item.cover ? (
-          <Image source={{ uri: item.cover }} style={styles.coverImage} />
+        {item.songs && item.songs.length > 0 && item.songs[0].albumCover ? (
+          <Image source={{ uri: item.songs[0].albumCover }} style={styles.coverImage} />
         ) : (
           <View style={styles.noCoverPlaceholder}>
             <Ionicons name="musical-notes-outline" size={36} color="#888" />
@@ -263,14 +263,6 @@ export default function PlaylistsScreen() {
               onChangeText={setDescInput}
               editable={!saving}
               multiline
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Cover Image URL"
-              placeholderTextColor={"#888"}
-              value={coverInput}
-              onChangeText={setCoverInput}
-              editable={!saving}
             />
 
             <View style={styles.checkboxContainer}>
