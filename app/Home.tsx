@@ -40,7 +40,6 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    console.log("Fetching playlists for user:", userId);
     if (!userId) return;
     fetchUserPlaylists(userId).then((pls: any[]) => {
       setPlaylists(pls);
