@@ -5,7 +5,6 @@ export interface Playlist {
   user_id: string;
   name: string;
   description?: string | null;
-  cover?: string | null;
   songs: any[];
   is_public: boolean;
   created_at: string;
@@ -50,14 +49,12 @@ export async function createPlaylist(
   userId: string,
   name: string,
   description?: string,
-  cover?: string,
   isPublic: boolean = false
 ): Promise<Playlist | null> {
   const newPlaylist = {
     user_id: userId,
     name,
     description: description || null,
-    cover: cover || null,
     songs: [],
     is_public: isPublic,
   };
