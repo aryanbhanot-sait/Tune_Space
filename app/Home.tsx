@@ -95,10 +95,15 @@ export default function HomePage() {
           )}
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
-            <Ionicons name="musical-notes-outline" size={22} color="#1DB954" /> Your Playlists
-          </Text>
+        <View style={styles.section} >
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Text style={styles.sectionTitle} onPress={goToCreatePlaylist} >
+              <Ionicons name="musical-notes-outline" size={22} color="#1DB954" onPress={goToCreatePlaylist} /> Your Playlists
+            </Text>
+            <TouchableOpacity style={styles.addButton} onPress={goToCreatePlaylist}>
+              <Ionicons name="add-circle-outline" size={36} color="#1DB954" />
+            </TouchableOpacity>
+          </View>
           {loadingPlaylists ? (
             <ActivityIndicator size="small" color="#1DB954" style={{ marginTop: 10 }} />
           ) : playlists.length === 0 ? (
@@ -259,6 +264,9 @@ const styles = StyleSheet.create({
     fontSize: 11,
     marginBottom: 1,
     maxWidth: 92,
+  },
+  addButton: {
+    padding: 4,
   },
   playlistCard: {
     alignItems: "center",
