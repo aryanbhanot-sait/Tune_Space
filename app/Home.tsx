@@ -131,8 +131,6 @@ export default function HomePage() {
 
       </ScrollView>
 
-      {/* your playlist section here with the playlist card clickable to the playlist page, if the user doesnt have any playlists, show a message like "You don't have any playlists yet, create one now!" button should show up */}
-
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
