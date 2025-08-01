@@ -16,6 +16,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { fetchUserPlaylists, createPlaylist, updatePlaylist, deletePlaylist, Playlist } from "../lib/supabase_playlists";
 import { supabase } from "../lib/supabase";
+import AnimatedTitle from "../components/animated_title";
 
 export default function PlaylistsScreen() {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
@@ -200,7 +201,7 @@ export default function PlaylistsScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Your Playlists</Text>
+        <AnimatedTitle>Your Playlists</AnimatedTitle>
         <TouchableOpacity style={styles.addButton} onPress={openCreateModal}>
           <Ionicons name="add-circle-outline" size={36} color="#1DB954" />
         </TouchableOpacity>
@@ -249,6 +250,7 @@ export default function PlaylistsScreen() {
             <TextInput
               style={styles.input}
               placeholder="Playlist Name *"
+              placeholderTextColor={"#888"}
               value={nameInput}
               onChangeText={setNameInput}
               editable={!saving}
@@ -256,6 +258,7 @@ export default function PlaylistsScreen() {
             <TextInput
               style={[styles.input, { height: 80 }]}
               placeholder="Description"
+              placeholderTextColor={"#888"}
               value={descInput}
               onChangeText={setDescInput}
               editable={!saving}
@@ -264,6 +267,7 @@ export default function PlaylistsScreen() {
             <TextInput
               style={styles.input}
               placeholder="Cover Image URL"
+              placeholderTextColor={"#888"}
               value={coverInput}
               onChangeText={setCoverInput}
               editable={!saving}
@@ -312,12 +316,12 @@ export default function PlaylistsScreen() {
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
-            style={styles.fabSelected}
-            activeOpacity={1}
+            style={styles.fabNormal}
+            onPress={() => router.replace('/home')}
           >
             <Ionicons name="home-outline" size={30} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.fabLabelSelected}>Home</Text>
+          <Text style={styles.fabLabel}>Home</Text>
         </View>
 
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -356,6 +360,7 @@ const styles = StyleSheet.create({
   },
   addButton: {
     padding: 4,
+    marginBottom: 40,
   },
   centeredView: {
     flex: 1,
