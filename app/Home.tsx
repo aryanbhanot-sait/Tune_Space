@@ -24,6 +24,7 @@ export default function HomePage() {
         router.replace('/');
         return;
       }
+      setUserId(session.user.id);
       getUserById(session.user.id).then(user => {
         if (user && isMounted) setUserFullName(`${user.first_name} ${user.last_name}`);
       });
@@ -32,14 +33,14 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    // Fetch trending songs from TheAudioDB
-    fetchTrendingSongs("us", 12).then(songs => {
+    fetchTrendingSongs(12).then(songs => {
       setTrending(songs);
       setLoadingTrending(false);
     });
   }, []);
 
   useEffect(() => {
+    console.log("Fetching playlists for user:", userId);
     if (!userId) return;
     fetchUserPlaylists(userId).then((pls: any[]) => {
       setPlaylists(pls);
@@ -51,7 +52,7 @@ export default function HomePage() {
     router.push(`/playlists/${playlistId}`);
   };
   const goToCreatePlaylist = () => {
-    router.push('/playlists/create');
+    router.push('/playlists/playlist');
   };
 
   return (
