@@ -48,7 +48,7 @@ export default function HomePage() {
   }, [userId]);
 
   const goToPlaylist = (playlistId: string) => {
-    router.push(`/playlists/${playlistId}`);
+    router.push(`/particular_playlist`);
   };
   const goToCreatePlaylist = () => {
     router.push('/playlists');
@@ -122,11 +122,20 @@ export default function HomePage() {
               keyExtractor={item => item.id}
               contentContainerStyle={{ gap: 18, paddingVertical: 5, paddingLeft: 2 }}
               renderItem={({ item }) => (
-                <TouchableOpacity style={styles.playlistCard} onPress={() => goToPlaylist(item.id)}>
-                  <Image source={{ uri: item.cover || undefined }} style={styles.playlistArt} />
+                <TouchableOpacity
+                  style={styles.playlistCard}
+                  onPress={() => goToPlaylist(item.id)}
+                >
+                  {item.songs && item.songs.length > 0 && item.songs[0].albumCover ? (
+                    <Image source={{ uri: item.songs[0].albumCover }} style={styles.playlistArt} />
+                  ) : (
+                    <View style={styles.noCoverPlaceholder}>
+                      <Ionicons name="musical-notes-outline" size={36} color="#888" />
+                    </View>
+                  )}
                   <Text style={styles.playlistName} numberOfLines={1}>{item.name}</Text>
                   <Text style={styles.playlistSub}>
-                    {item.numberOfSongs} {item.numberOfSongs === 1 ? 'song' : 'songs'}
+                    {item.songs ? item.songs.length : 0} {item.songs && item.songs.length === 1 ? 'song' : 'songs'}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -173,6 +182,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
     position: "relative",
+  },
+  noCoverPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 12,
+    backgroundColor: "#191c24",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 8,
   },
   top: {
     width: "100%",
