@@ -7,6 +7,8 @@ import { Ionicons } from "@expo/vector-icons";
 import AnimatedTitle from '../components/animated_title';
 import { fetchTrendingSongs, AudioDBSong } from '../lib/theaudiodb';
 import { fetchUserPlaylists } from '../lib/supabase_playlists';
+import { fetchRecentlyListenedSongs } from '../lib/supabase_recently_listened';
+
 
 
 export default function HomePage() {
@@ -14,8 +16,10 @@ export default function HomePage() {
   const [userId, setUserId] = useState('');
   const [trending, setTrending] = useState<AudioDBSong[]>([]);
   const [playlists, setPlaylists] = useState<any[]>([]);
+  const [recentlyListened, setRecentlyListened] = useState<AudioDBSong[]>([]);
   const [loadingTrending, setLoadingTrending] = useState(true);
   const [loadingPlaylists, setLoadingPlaylists] = useState(true);
+  const [loadingRecentlyListened, setLoadingRecentlyListened] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
@@ -57,6 +61,18 @@ export default function HomePage() {
       setAllSongs(mappedSongs);
     }
   }, [trending]);
+
+  useEffect(() => {
+    if (!userId) return;
+    setLoadingRecentlyListened(true);
+    fetchRecentlyListenedSongs(userId).then(songs => {
+      setRecentlyListened(songs);
+      setLoadingRecentlyListened(false);
+    }).catch(() => {
+      setRecentlyListened([]);
+      setLoadingRecentlyListened(false);
+    });
+  }, [userId]);
 
   useEffect(() => {
     if (!userId) return;
@@ -146,6 +162,39 @@ export default function HomePage() {
           ) : (
             <FlatList
               data={trending}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={item => item.idTrack}
+              contentContainerStyle={{ gap: 18, paddingVertical: 5, paddingLeft: 2 }}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.songCard}
+                  onPress={() => goToSong(item.idTrack)}
+                >
+                  <Image
+                    source={{ uri: item.strTrackThumb || item.strAlbumThumb || undefined }}
+                    style={styles.songArt}
+                  />
+                  <Text style={styles.songTitle} numberOfLines={1}>{item.strTrack}</Text>
+                  <Text style={styles.songArtist} numberOfLines={1}>{item.strArtist}</Text>
+                  <Text style={styles.songAlbum} numberOfLines={1}>
+                    {item.strAlbum} {item.intYearReleased ? `(${item.intYearReleased})` : ''}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            <Ionicons name="time-outline" size={22} color="#1DB954" /> Recently Listened
+          </Text>
+          {loadingRecentlyListened ? (
+            <ActivityIndicator size="small" color="#1DB954" style={{ marginTop: 10 }} />
+          ) : (
+            <FlatList
+              data={recentlyListened}
               horizontal
               showsHorizontalScrollIndicator={false}
               keyExtractor={item => item.idTrack}
