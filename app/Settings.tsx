@@ -125,6 +125,16 @@ export default function SettingsPage() {
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabNormal}
+            onPress={() => router.replace('/liked')}
+          >
+            <Ionicons name="heart-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Liked</Text>
+        </View>
+
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
             onPress={() => router.replace('/home')}
           >
             <Ionicons name="home-outline" size={30} color="#fff" />
@@ -314,31 +324,31 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   infoContainer: {
-  paddingVertical: 18,
-  alignItems: "center",
-  justifyContent: "center",
-},
-infoText: {
-  color: "#b3b3b3",
-  fontSize: 15,
-  textAlign: "center",
-  letterSpacing: 0.2,
-  lineHeight: 22,
-},
-bold: {
-  color: "#1DB954",
-  fontWeight: "bold",
-  fontSize: 16,
-  letterSpacing: 0.3,
-},
-heart: {
-  color: "#de2c66",
-  fontWeight: "bold",
-},
-meta: {
-  color: "#888",
-  fontSize: 13,
-  fontStyle: "italic",
-},
+    paddingVertical: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  infoText: {
+    color: "#b3b3b3",
+    fontSize: 15,
+    textAlign: "center",
+    letterSpacing: 0.2,
+    lineHeight: 22,
+  },
+  bold: {
+    color: "#1DB954",
+    fontWeight: "bold",
+    fontSize: 16,
+    letterSpacing: 0.3,
+  },
+  heart: {
+    color: "#de2c66",
+    fontWeight: "bold",
+  },
+  meta: {
+    color: "#888",
+    fontSize: 13,
+    fontStyle: "italic",
+  },
 
 });
