@@ -224,6 +224,16 @@ export default function HomePage() {
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/liked')}
+          >
+            <Ionicons name="heart-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Liked</Text>
+        </View>
+
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
             style={styles.fabSelected}
             activeOpacity={1}
           >
