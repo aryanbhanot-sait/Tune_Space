@@ -13,6 +13,8 @@ import { supabase } from '../../lib/supabase';
 import { isSongLiked, addSongLike, removeSongLike } from '../../lib/liked_songs';
 import { Audio } from 'expo-av';
 import { AudioDBSong, fetchSongById } from '../../lib/theaudiodb';
+import { recordRecentlyListened } from '../../lib/supabase_recently_listened';
+
 
 export default function SongPlayer() {
     const { id } = useLocalSearchParams<{ id: string }>();
@@ -94,7 +96,40 @@ export default function SongPlayer() {
     };
 
     const onPlayPause = async () => {
-        if (!song?.preview) return;
+        if (!song?.preview || !userId) return;
+
+        try {
+            if (!soundRef.current) {
+                const { sound } = await Audio.Sound.createAsync(
+                    { uri: song.preview },
+                    { shouldPlay: true }
+                );
+                soundRef.current = sound;
+                setIsPlaying(true);
+
+                // Record recently listened here
+                await recordRecentlyListened(userId, song.idTrack);
+
+                sound.setOnPlaybackStatusUpdate((status) => {
+                    if (status.isLoaded && !status.isPlaying) {
+                        setIsPlaying(false);
+                    }
+                });
+            } else {
+                if (isPlaying) {
+                    await soundRef.current.pauseAsync();
+                    setIsPlaying(false);
+                } else {
+                    await soundRef.current.playAsync();
+                    setIsPlaying(true);
+
+                    // Record recently listened here
+                    await recordRecentlyListened(userId, song.idTrack);
+                }
+            }
+        } catch (error) {
+            console.error('Audio playback error:', error);
+        }
 
         try {
             if (!soundRef.current) {

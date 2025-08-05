@@ -28,5 +28,43 @@ export async function fetchRecentlyListenedSongs(userId: string): Promise<AudioD
         return [];
     }
 
-    return songs as AudioDBSong[];  // Cast if appropriate
+    return songs as AudioDBSong[];
+}
+
+export async function recordRecentlyListened(userId: string, songId: string) {
+    const { data: existing, error } = await supabase
+        .from('recently_listened')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('song_id', songId)
+        .limit(1);
+
+    if (error) {
+        console.error(error);
+        return false;
+    }
+
+    if (existing && existing.length > 0) {
+        const { error: updateError } = await supabase
+            .from('recently_listened')
+            .update({ played_at: new Date().toISOString() })
+            .eq('user_id', userId)
+            .eq('song_id', songId);
+
+        if (updateError) {
+            console.error(updateError);
+            return false;
+        }
+    } else {
+        const { error: insertError } = await supabase
+            .from('recently_listened')
+            .insert([{ user_id: userId, song_id: songId, played_at: new Date().toISOString() }]);
+
+        if (insertError) {
+            console.error(insertError);
+            return false;
+        }
+    }
+
+    return true;
 }
