@@ -61,6 +61,27 @@ export default function HomePage() {
   }, [trending]);
 
   useEffect(() => {
+    if (recentlyListened.length > 0) {
+      const mappedRecent = recentlyListened.map(song => ({
+        id: song.idTrack,
+        title: song.strTrack || '',
+        artist: song.strArtist || '',
+        album: song.strAlbum || '',
+      }));
+      setAllSongs(prevAllSongs => {
+        const combined = [...prevAllSongs, ...mappedRecent];
+        const uniqueById = combined.reduce((acc: { id: string; title: string; artist: string; album: string }[], current) => {
+          if (!acc.some(song => song.id === current.id)) {
+            acc.push(current);
+          }
+          return acc;
+        }, []);
+        return uniqueById;
+      });
+    }
+  }, [recentlyListened]);
+
+  useEffect(() => {
     if (!userId) return;
     setLoadingRecentlyListened(true);
     fetchRecentlyListenedSongs(userId).then(songs => {
@@ -188,14 +209,19 @@ export default function HomePage() {
           <Text style={styles.sectionTitle}>
             <Ionicons name="time-outline" size={22} color="#1DB954" /> Recently Listened
           </Text>
+
           {loadingRecentlyListened ? (
             <ActivityIndicator size="small" color="#1DB954" style={{ marginTop: 10 }} />
+          ) : recentlyListened.length === 0 ? (
+            <Text style={{ marginTop: 10, color: '#888', fontStyle: 'italic' }}>
+              You haven't listened to any songs yet.
+            </Text>
           ) : (
             <FlatList
               data={recentlyListened}
               horizontal
               showsHorizontalScrollIndicator={false}
-              keyExtractor={item => item.idTrack}
+              keyExtractor={(item) => item.idTrack}
               contentContainerStyle={{ gap: 18, paddingVertical: 5, paddingLeft: 2 }}
               renderItem={({ item }) => (
                 <TouchableOpacity

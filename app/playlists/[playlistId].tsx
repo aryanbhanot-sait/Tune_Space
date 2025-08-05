@@ -164,14 +164,26 @@ export default function PlaylistDetail() {
           <Text style={styles.addSongsText}>Add More Songs</Text>
         </TouchableOpacity>
       </ScrollView>
+
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/liked')}
+          >
+            <Ionicons name="heart-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Liked</Text>
+        </View>
+
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabNormal}
             onPress={() => router.replace('/home')}
           >
             <Ionicons name="home-outline" size={30} color="#fff" />
+
           </TouchableOpacity>
           <Text style={styles.fabLabel}>Home</Text>
         </View>
