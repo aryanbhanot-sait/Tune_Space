@@ -111,7 +111,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#121212',
-    paddingHorizontal: 16,
     paddingTop: 35,
   },
   card: {
@@ -119,6 +118,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#1e1e1e',
     padding: 12,
+    marginHorizontal: 16,
     borderRadius: 10,
     marginBottom: 10,
   },
