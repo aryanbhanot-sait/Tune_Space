@@ -26,18 +26,18 @@ export default function SongPlayer() {
     const [likeLoading, setLikeLoading] = useState(false);
 
     const [userId, setUserId] = useState<string | null>(null);
-    
-      useEffect(() => {
+
+    useEffect(() => {
         async function fetchUserId() {
-          const { data, error } = await supabase.auth.getUser();
-          if (error || !data?.user) {
-            setUserId(null);
-          } else {
-            setUserId(data.user.id);
-          }
+            const { data, error } = await supabase.auth.getUser();
+            if (error || !data?.user) {
+                setUserId(null);
+            } else {
+                setUserId(data.user.id);
+            }
         }
         fetchUserId();
-      }, []);
+    }, []);
 
     useEffect(() => {
         async function loadSong() {
@@ -191,6 +191,16 @@ export default function SongPlayer() {
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <TouchableOpacity
                         style={styles.fabNormal}
+                        onPress={() => router.replace('/liked')}
+                    >
+                        <Ionicons name="heart-outline" size={30} color="#fff" />
+                    </TouchableOpacity>
+                    <Text style={styles.fabLabel}>Liked</Text>
+                </View>
+
+                <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+                    <TouchableOpacity
+                        style={styles.fabNormal}
                         onPress={() => router.replace('/home')}
                     >
                         <Ionicons name="home-outline" size={30} color="#fff" />
@@ -207,6 +217,7 @@ export default function SongPlayer() {
                     </TouchableOpacity>
                     <Text style={styles.fabLabel}>Settings</Text>
                 </View>
+
             </View>
         </View>
     );
