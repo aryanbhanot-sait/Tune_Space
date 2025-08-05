@@ -2,6 +2,8 @@ import { supabase } from './supabase';
 import type { AudioDBSong } from './theaudiodb';
 
 export async function fetchRecentlyListenedSongs(userId: string): Promise<AudioDBSong[]> {
+
+    
     const { data: recentData, error: recentError } = await supabase
         .from('recently_listened')
         .select('song_id')

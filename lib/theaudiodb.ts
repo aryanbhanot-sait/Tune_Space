@@ -1,3 +1,5 @@
+import { supabase } from "./supabase";
+
 const API_BASE = "https://api.deezer.com";
 
 export interface AudioDBSong {
@@ -79,7 +81,7 @@ export async function fetchSongById(idTrack: string): Promise<AudioDBSong | null
     return null;
   }
 
-  return {
+  const song: AudioDBSong = {
     idTrack: trackData.id.toString(),
     strTrack: trackData.title,
     strArtist: trackData.artist?.name || "",
@@ -89,8 +91,28 @@ export async function fetchSongById(idTrack: string): Promise<AudioDBSong | null
     intYearReleased: trackData.release_date ? new Date(trackData.release_date).getFullYear().toString() : null,
     preview: trackData.preview || null,
   };
-}
 
+  // Upsert song into the tracks table
+  try {
+    await supabase
+      .from('tracks')
+      .upsert([
+        {
+          id: song.idTrack,
+          title: song.strTrack,
+          artist: song.strArtist,
+          album: song.strAlbum,
+          artwork_url: song.strTrackThumb,
+          preview_url: song.preview,
+          year_released: song.intYearReleased ? parseInt(song.intYearReleased) : null,
+        }
+      ]);
+  } catch (error) {
+    console.error('Failed to upsert song into tracks table:', error);
+  }
+
+  return song;
+}
 
 export async function fetchTrendingAlbums(count: number = 12) {
   const url = `${API_BASE}/chart/0/albums?limit=${count}`;

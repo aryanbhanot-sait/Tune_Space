@@ -50,13 +50,11 @@ export default function HomePage() {
 
   useEffect(() => {
     if (trending.length > 0) {
-      // Map AudioDBSong to your song object with expected keys for search
       const mappedSongs = trending.map(song => ({
         id: song.idTrack,
         title: song.strTrack || '',
         artist: song.strArtist || '',
         album: song.strAlbum || '',
-        // optionally add more fields if needed
       }));
       setAllSongs(mappedSongs);
     }
