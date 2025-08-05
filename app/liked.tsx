@@ -71,12 +71,12 @@ export default function LikedSongsScreen() {
       <View style={styles.footerBar}>
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
-            style={styles.fabNormal}
-            onPress={() => router.replace('/liked')}
+            style={styles.fabSelected}
+            activeOpacity={1}
           >
             <Ionicons name="heart-outline" size={30} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.fabLabel}>Liked</Text>
+          <Text style={styles.fabLabelSelected}>Liked</Text>
         </View>
 
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
@@ -92,12 +92,12 @@ export default function LikedSongsScreen() {
 
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
-            style={styles.fabSelected}
-            activeOpacity={1}
+            style={styles.fabNormal}
+            onPress={() => router.replace('/settings')}
           >
             <Ionicons name="settings-outline" size={36} color="#fff" />
           </TouchableOpacity>
-          <Text style={styles.fabLabelSelected}>Settings</Text>
+          <Text style={styles.fabLabel}>Settings</Text>
         </View>
 
       </View>
@@ -112,7 +112,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#121212',
     paddingHorizontal: 16,
-    paddingTop: 32,
+    paddingTop: 35,
   },
   card: {
     flexDirection: 'row',
