@@ -1,37 +1,37 @@
 import { supabase } from './supabase';
 import type { AudioDBSong } from './theaudiodb';
 
+import { fetchSongById } from './theaudiodb'; // Your external API fetching function
+
 export async function fetchRecentlyListenedSongs(userId: string): Promise<AudioDBSong[]> {
+  const { data: recentData, error: recentError } = await supabase
+    .from('recently_listened')
+    .select('song_id')
+    .eq('user_id', userId)
+    .order('played_at', { ascending: false })
+    .limit(10);
 
-    
-    const { data: recentData, error: recentError } = await supabase
-        .from('recently_listened')
-        .select('song_id')
-        .eq('user_id', userId)
-        .order('played_at', { ascending: false })
-        .limit(10);
+  if (recentError || !recentData) {
+    console.error('Error fetching recently listened:', recentError);
+    return [];
+  }
 
-    if (recentError || !recentData) {
-        console.error('Error fetching recently listened:', recentError);
-        return [];
-    }
+  if (recentData.length === 0) return [];
 
-    if (recentData.length === 0) return [];
+  const songIds = recentData.map(row => row.song_id);
 
-    const songIds = recentData.map(row => row.song_id);
+  const songsPromises = songIds.map(id =>
+    fetchSongById(id).catch(error => {
+      console.error(`Failed to fetch song data for id ${id}:`, error);
+      return null;
+    })
+  );
 
-    const { data: songs, error: songsError } = await supabase
-        .from('tracks')
-        .select('*')
-        .in('id', songIds);
+  const songs = await Promise.all(songsPromises);
 
-    if (songsError || !songs) {
-        console.error('Error fetching songs:', songsError);
-        return [];
-    }
-
-    return songs as AudioDBSong[];
+  return songs.filter((song): song is AudioDBSong => song !== null);
 }
+
 
 export async function recordRecentlyListened(userId: string, songId: string) {
     const { data: existing, error } = await supabase

@@ -108,7 +108,7 @@ export default function PlaylistDetail() {
   // Navigate to add songs page (implement that page as needed)
   const goToAddSongs = () => {
     if (!playlistId) return;
-    router.push(`/playlists/${playlistId}/add-songs`);
+    router.push(`/playlists/${playlistId}`);
   };
 
   if (loading) {
