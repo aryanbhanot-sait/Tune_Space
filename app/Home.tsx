@@ -55,6 +55,7 @@ export default function HomePage() {
         title: song.strTrack || '',
         artist: song.strArtist || '',
         album: song.strAlbum || '',
+        thumb: song.strTrackThumb || song.strAlbumThumb || '',
       }));
       setAllSongs(mappedSongs);
     }
@@ -67,6 +68,7 @@ export default function HomePage() {
         title: song.strTrack || '',
         artist: song.strArtist || '',
         album: song.strAlbum || '',
+        thumb: song.strTrackThumb || song.strAlbumThumb || '',
       }));
       setAllSongs(prevAllSongs => {
         const combined = [...prevAllSongs, ...mappedRecent];
@@ -122,7 +124,8 @@ export default function HomePage() {
       (song) =>
         song.title.toLowerCase().includes(lowerq) ||
         song.artist.toLowerCase().includes(lowerq) ||
-        song.album?.toLowerCase().includes(lowerq)
+        song.album?.toLowerCase().includes(lowerq) ||
+        song.thumb.toLowerCase().includes(lowerq)
     );
     setSearchResults(filtered);
   };
@@ -154,8 +157,12 @@ export default function HomePage() {
           renderItem={({ item }) => (
             <TouchableOpacity
               onPress={() => router.push(`/songs/${item.id}`)}
-              style={styles.resultItemTouchable}
+              style={styles.songCard1}
             >
+              <Image
+                source={{ uri: item.thumb || 'https://via.placeholder.com/60' }}
+                style={styles.songArt}
+              />
               <Text style={styles.resultItem}>
                 {item.title} - {item.artist} {item.album ? `(${item.album})` : ''}
               </Text>
@@ -369,6 +376,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderColor: '#444',
     borderWidth: 1,
+    width: '90%',
   },
   sectionHeading: {
     fontSize: 22,
@@ -393,7 +401,6 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     height: 140,
     alignItems: "center",
-    marginBottom: 10,
   },
   title: {
     color: "#1DB954",
@@ -521,6 +528,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderBottomColor: '#333',
     borderBottomWidth: 1,
+  },
+  songCard1: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#2a2f3a',
   },
   footerFabContainer: {
     position: "absolute",
