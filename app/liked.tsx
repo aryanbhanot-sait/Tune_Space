@@ -46,13 +46,13 @@ export default function LikedSongsScreen() {
           <TouchableOpacity
             style={styles.card}
             onPress={() =>
-            router.push({
+              router.push({
                 pathname: `/songs/${item.idTrack}`,
                 params: {
-                tracklist: likedSongs.map((s) => s.idTrack).join(','),
+                  tracklist: likedSongs.map((s) => s.idTrack).join(','),
                 },
-                        })
-                    }
+              })
+            }
 
           >
             <Image
@@ -69,6 +69,16 @@ export default function LikedSongsScreen() {
 
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/recent')}
+          >
+            <Ionicons name="time-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Recent</Text>
+        </View>
+
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabSelected}
@@ -102,7 +112,7 @@ export default function LikedSongsScreen() {
 
       </View>
 
-      
+
     </View>
   );
 }

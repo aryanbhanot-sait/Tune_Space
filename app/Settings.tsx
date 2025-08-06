@@ -125,6 +125,16 @@ export default function SettingsPage() {
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabNormal}
+            onPress={() => router.replace('/recent')}
+          >
+            <Ionicons name="time-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Recent</Text>
+        </View>
+
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
             onPress={() => router.replace('/liked')}
           >
             <Ionicons name="heart-outline" size={30} color="#fff" />

@@ -206,7 +206,7 @@ export default function HomePage() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>
+          <Text style={styles.sectionTitle} onPress={() => router.push('/recent')}>
             <Ionicons name="time-outline" size={22} color="#1DB954" /> Recently Listened
           </Text>
 
@@ -295,6 +295,16 @@ export default function HomePage() {
 
       {/* Modern Footer Bar with Home and Settings */}
       <View style={styles.footerBar}>
+        <View style={{ flexDirection: 'column', alignItems: 'center' }}>
+          <TouchableOpacity
+            style={styles.fabNormal}
+            onPress={() => router.replace('/recent')}
+          >
+            <Ionicons name="time-outline" size={30} color="#fff" />
+          </TouchableOpacity>
+          <Text style={styles.fabLabel}>Recent</Text>
+        </View>
+
         <View style={{ flexDirection: 'column', alignItems: 'center' }}>
           <TouchableOpacity
             style={styles.fabNormal}
