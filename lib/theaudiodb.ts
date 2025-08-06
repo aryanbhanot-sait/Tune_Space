@@ -114,6 +114,24 @@ export async function fetchSongById(idTrack: string): Promise<AudioDBSong | null
   return song;
 }
 
+export async function searchSongsFromApi(query: string): Promise<AudioDBSong[]> {
+  const url = `${API_BASE}/search?q=${encodeURIComponent(query)}`; // Adjust for your API
+  const response = await fetch(url);
+  if (!response.ok) return [];
+  const data = await response.json();
+  if (!Array.isArray(data.data)) return [];
+  return data.data.map((track: any) => ({
+    idTrack: track.id.toString(),
+    strTrack: track.title,
+    strArtist: track.artist?.name || "",
+    strAlbum: track.album?.title || "",
+    strTrackThumb: track.album?.cover_medium || null,
+    strAlbumThumb: track.album?.cover_medium || null,
+    intYearReleased: track.release_date ? new Date(track.release_date).getFullYear().toString() : null,
+    preview: track.preview || null,
+  }));
+}
+
 export async function fetchTrendingAlbums(count: number = 12) {
   const url = `${API_BASE}/chart/0/albums?limit=${count}`;
 
