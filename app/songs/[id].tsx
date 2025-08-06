@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
+    Linking
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -192,7 +193,6 @@ export default function SongPlayer() {
                 </Text>
 
                 <TouchableOpacity
-                    style={styles.playPauseButton}
                     onPress={onPlayPause}
                     disabled={!song.preview}
                 >
@@ -203,18 +203,29 @@ export default function SongPlayer() {
                     />
                 </TouchableOpacity>
 
-                {/* Like Button */}
-                <TouchableOpacity
-                    style={{ marginTop: 24 }}
-                    onPress={toggleLike}
-                    disabled={likeLoading}
-                >
-                    <Ionicons
-                        name={isLiked ? 'heart' : 'heart-outline'}
-                        size={40}
-                        color={isLiked ? '#1DB954' : '#aaa'}
-                    />
-                </TouchableOpacity>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 40, marginTop: 20 }}>
+                    {/* Like Button */}
+                    <TouchableOpacity
+                        style={{ marginTop: 20 }}
+                        onPress={toggleLike}
+                        disabled={likeLoading}
+                    >
+                        <Ionicons
+                            name={isLiked ? 'heart' : 'heart-outline'}
+                            size={40}
+                            color={isLiked ? '#1DB954' : '#aaa'}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        style={styles.downloadButton}
+                        onPress={() => Linking.openURL('https://www.bensound.com/royalty-free-music?tag[]=ordinary&sort=relevance')}
+                    >
+                        <Ionicons name="download-outline" size={36} color="#ffffffff" />
+                        <Text style={styles.downloadButtonText}>Download Music</Text>
+                    </TouchableOpacity>
+
+                </View>
 
                 {!song.preview && (
                     <Text style={styles.noPreviewText}>No audio preview available.</Text>
@@ -354,9 +365,6 @@ const styles = StyleSheet.create({
         marginBottom: 30,
         textAlign: 'center',
     },
-    playPauseButton: {
-        marginTop: 10,
-    },
     noPreviewText: {
         marginTop: 12,
         color: '#666',
@@ -372,4 +380,20 @@ const styles = StyleSheet.create({
         color: 'red',
         fontSize: 18,
     },
+    downloadButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 30,
+        backgroundColor: '#1DB954',
+        alignSelf: 'center',
+    },
+    downloadButtonText: {
+        color: '#fff',
+        fontWeight: '700',
+        fontSize: 16,
+        marginLeft: 12,
+    },
+
 });
