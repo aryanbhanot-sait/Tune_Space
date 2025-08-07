@@ -6,7 +6,9 @@ import {
     TouchableOpacity,
     ActivityIndicator,
     Image,
-    Linking
+    Linking,
+    Alert,
+    Platform
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -16,10 +18,15 @@ import { Audio } from 'expo-av';
 import { AudioDBSong, fetchSongById } from '../../lib/theaudiodb';
 import { recordRecentlyListened } from '../../lib/supabase_recently_listened';
 
-
 export default function SongPlayer() {
-    const { id } = useLocalSearchParams<{ id: string }>();
+    // ----- SUPPORT PLAYLIST from NAV PARAMS -----
+    const { id, tracklist } = useLocalSearchParams<{ id: string, tracklist?: string }>(); // NEW
 
+    // Prepare tracklist (playlist of song IDs) if given. Else use [id].
+    const [playlist, setPlaylist] = useState<string[]>([]);
+    const [currentIdx, setCurrentIdx] = useState(0);
+
+    // Song state
     const [song, setSong] = useState<AudioDBSong | null>(null);
     const [loading, setLoading] = useState(true);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -27,9 +34,23 @@ export default function SongPlayer() {
 
     const [isLiked, setIsLiked] = useState(false);
     const [likeLoading, setLikeLoading] = useState(false);
-
     const [userId, setUserId] = useState<string | null>(null);
 
+    // --- Extract playlist or fallback ---
+    useEffect(() => {
+        let list: string[] = [];
+        if (tracklist) {
+            list = tracklist.split(',').filter(Boolean);
+        }
+        if (list.length === 0 && id) list = [id as string];
+        setPlaylist(list);
+
+        // set currentIdx to the right position in the playlist (in case direct link into middle of playlist)
+        let i = list.indexOf(id as string);
+        setCurrentIdx(i === -1 ? 0 : i);
+    }, [id, tracklist]);
+
+    // --- Fetch user ---
     useEffect(() => {
         async function fetchUserId() {
             const { data, error } = await supabase.auth.getUser();
@@ -42,15 +63,39 @@ export default function SongPlayer() {
         fetchUserId();
     }, []);
 
+    // --- Load song by playlist/currentIdx ---
     useEffect(() => {
         async function loadSong() {
-            if (!id) return;
+            if (!playlist.length) return;
             setLoading(true);
             try {
-                const songData = await fetchSongById(id);
+                // Unload current sound if present
+                if (soundRef.current) {
+                    await soundRef.current.unloadAsync();
+                    soundRef.current = null;
+                }
+
+                const songData = await fetchSongById(playlist[currentIdx]);
                 setSong(songData);
+
+                // Auto play song when loaded
+                if (songData?.preview && userId) {
+                    const { sound } = await Audio.Sound.createAsync(
+                        { uri: songData.preview },
+                        { shouldPlay: true }
+                    );
+                    soundRef.current = sound;
+                    setIsPlaying(true);
+
+                    await recordRecentlyListened(userId, songData.idTrack);
+
+                    sound.setOnPlaybackStatusUpdate((status) => {
+                        if (status.isLoaded && !status.isPlaying) setIsPlaying(false);
+                    });
+                } else {
+                    setIsPlaying(false);
+                }
             } catch (err) {
-                console.error('Failed to fetch song:', err);
                 setSong(null);
             } finally {
                 setLoading(false);
@@ -59,25 +104,28 @@ export default function SongPlayer() {
         loadSong();
 
         return () => {
+            // Clean up when leaving or changing song
             if (soundRef.current) {
                 soundRef.current.unloadAsync();
                 soundRef.current = null;
             }
             setIsPlaying(false);
         };
-    }, [id]);
+    }, [playlist, currentIdx, userId]);
 
+    // --- Like status for current song
     useEffect(() => {
-        if (!id || !userId) {
+        if (!song?.idTrack || !userId) {
             setIsLiked(false);
             return;
         }
         (async () => {
-            const liked = await isSongLiked(userId, id);
+            const liked = await isSongLiked(userId, song.idTrack);
             setIsLiked(liked);
         })();
-    }, [id, userId]);
+    }, [song?.idTrack, userId]);
 
+    // --- Like/Unlike button logic --
     const toggleLike = async () => {
         if (!userId || !song) return;
         setLikeLoading(true);
@@ -96,9 +144,9 @@ export default function SongPlayer() {
         }
     };
 
+    // --- Play/Pause toggle
     const onPlayPause = async () => {
         if (!song?.preview || !userId) return;
-
         try {
             if (!soundRef.current) {
                 const { sound } = await Audio.Sound.createAsync(
@@ -107,14 +155,9 @@ export default function SongPlayer() {
                 );
                 soundRef.current = sound;
                 setIsPlaying(true);
-
-                // Record recently listened here
                 await recordRecentlyListened(userId, song.idTrack);
-
                 sound.setOnPlaybackStatusUpdate((status) => {
-                    if (status.isLoaded && !status.isPlaying) {
-                        setIsPlaying(false);
-                    }
+                    if (status.isLoaded && !status.isPlaying) setIsPlaying(false);
                 });
             } else {
                 if (isPlaying) {
@@ -123,41 +166,25 @@ export default function SongPlayer() {
                 } else {
                     await soundRef.current.playAsync();
                     setIsPlaying(true);
-
-                    // Record recently listened here
                     await recordRecentlyListened(userId, song.idTrack);
                 }
             }
         } catch (error) {
             console.error('Audio playback error:', error);
         }
-
-        try {
-            if (!soundRef.current) {
-                const { sound } = await Audio.Sound.createAsync(
-                    { uri: song.preview },
-                    { shouldPlay: true }
-                );
-                soundRef.current = sound;
-                setIsPlaying(true);
-                sound.setOnPlaybackStatusUpdate((status) => {
-                    if (status.isLoaded && !status.isPlaying) {
-                        setIsPlaying(false);
-                    }
-                });
-            } else {
-                if (isPlaying) {
-                    await soundRef.current.pauseAsync();
-                    setIsPlaying(false);
-                } else {
-                    await soundRef.current.playAsync();
-                    setIsPlaying(true);
-                }
-            }
-        } catch (error) {
-            console.error('Audio playback error:', error);
-        }
     };
+
+    // --- SKIP LOGIC ---
+    const skipPrev = () => {
+        if (currentIdx > 0) setCurrentIdx(currentIdx - 1);
+        else Alert.alert('This is the first song!');
+    };
+    const skipNext = () => {
+        if (currentIdx < playlist.length - 1) setCurrentIdx(currentIdx + 1);
+        else Alert.alert('This is the last song!');
+    };
+
+    // --- UI ---
 
     if (loading) {
         return (
@@ -192,21 +219,41 @@ export default function SongPlayer() {
                     {song.strAlbum} {song.intYearReleased ? `(${song.intYearReleased})` : ''}
                 </Text>
 
-                <TouchableOpacity
-                    onPress={onPlayPause}
-                    disabled={!song.preview}
-                >
-                    <Ionicons
-                        name={isPlaying ? 'pause-circle' : 'play-circle'}
-                        size={88}
-                        color={song.preview ? '#1DB954' : '#555'}
-                    />
-                </TouchableOpacity>
+                {/* SKIP + PLAY/PAUSE BUTTON BAR */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 35, marginVertical: 24 }}>
+                    <TouchableOpacity
+                        onPress={skipPrev}
+                        disabled={currentIdx === 0}
+                        style={[styles.skipButton, currentIdx === 0 && { opacity: 0.5 }]}
+                    >
+                        <Ionicons name="play-skip-back" size={52} color={currentIdx === 0 ? '#555' : '#1DB954'} />
+                    </TouchableOpacity>
 
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 40, marginTop: 20 }}>
+                    <TouchableOpacity
+                        onPress={onPlayPause}
+                        disabled={!song.preview}
+                    >
+                        <Ionicons
+                            name={isPlaying ? 'pause-circle' : 'play-circle'}
+                            size={88}
+                            color={song.preview ? '#1DB954' : '#555'}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={skipNext}
+                        disabled={currentIdx === playlist.length - 1}
+                        style={[styles.skipButton, currentIdx === playlist.length - 1 && { opacity: 0.5 }]}
+                    >
+                        <Ionicons name="play-skip-forward" size={52} color={currentIdx === playlist.length - 1 ? '#555' : '#1DB954'} />
+                    </TouchableOpacity>
+                </View>
+
+                {/* Like & Download Bar */}
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 40, marginTop: 5 }}>
                     {/* Like Button */}
                     <TouchableOpacity
-                        style={{ marginTop: 20 }}
+                        style={{}}
                         onPress={toggleLike}
                         disabled={likeLoading}
                     >
@@ -217,14 +264,14 @@ export default function SongPlayer() {
                         />
                     </TouchableOpacity>
 
+                    {/* Download Button */}
                     <TouchableOpacity
                         style={styles.downloadButton}
                         onPress={() => Linking.openURL('https://www.bensound.com/royalty-free-music?tag[]=ordinary&sort=relevance')}
                     >
-                        <Ionicons name="download-outline" size={36} color="#ffffffff" />
+                        <Ionicons name="download-outline" size={36} color="#fff" />
                         <Text style={styles.downloadButtonText}>Download Music</Text>
                     </TouchableOpacity>
-
                 </View>
 
                 {!song.preview && (
@@ -232,7 +279,7 @@ export default function SongPlayer() {
                 )}
             </View>
 
-            {/* Modern Footer Bar with Home and Settings */}
+            {/* Footer Bar */}
             <View style={styles.footerBar}>
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <TouchableOpacity
@@ -243,7 +290,6 @@ export default function SongPlayer() {
                     </TouchableOpacity>
                     <Text style={styles.fabLabel}>Recent</Text>
                 </View>
-
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <TouchableOpacity
                         style={styles.fabNormal}
@@ -253,7 +299,6 @@ export default function SongPlayer() {
                     </TouchableOpacity>
                     <Text style={styles.fabLabel}>Liked</Text>
                 </View>
-
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <TouchableOpacity
                         style={styles.fabNormal}
@@ -263,7 +308,6 @@ export default function SongPlayer() {
                     </TouchableOpacity>
                     <Text style={styles.fabLabel}>Home</Text>
                 </View>
-
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     <TouchableOpacity
                         style={styles.fabNormal}
@@ -273,7 +317,6 @@ export default function SongPlayer() {
                     </TouchableOpacity>
                     <Text style={styles.fabLabel}>Settings</Text>
                 </View>
-
             </View>
         </View>
     );
@@ -293,9 +336,9 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "flex-end",
         gap: 30,
-        backgroundColor: "#191c24", // same or similar to your main bg
-        borderTopWidth: 2, // or 1 for more subtle
-        borderTopColor: "#23272f", // slightly lighter than bg for gentle effect
+        backgroundColor: "#191c24",
+        borderTopWidth: 2,
+        borderTopColor: "#23272f",
         paddingTop: 12,
         paddingHorizontal: 24,
         shadowColor: "#000",
@@ -304,7 +347,6 @@ const styles = StyleSheet.create({
         shadowRadius: 14,
         borderTopLeftRadius: 18,
         borderTopRightRadius: 18,
-        // If you want it to stretch (optional):
         left: 0,
         width: "100%",
         justifyContent: "center"
@@ -321,7 +363,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowOffset: { width: 1, height: 2 },
         shadowRadius: 8,
-
     },
     fabLabel: {
         color: "#fff",
@@ -395,5 +436,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         marginLeft: 12,
     },
-
+    skipButton: {
+        padding: 0,
+    },
 });
