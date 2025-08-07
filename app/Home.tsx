@@ -175,7 +175,7 @@ export default function HomePage() {
       )}
 
       <ScrollView
-        style={{ width: "100%", flex: 1 }}
+        style={{ width: "100%", flex: 1 , marginBottom: 10}}
         contentContainerStyle={{ paddingBottom: 110 }}
         showsVerticalScrollIndicator={false}
       >
